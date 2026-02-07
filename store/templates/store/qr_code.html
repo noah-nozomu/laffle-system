@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注文用QRコード</title>
+<style>
+body{font-family:sans-serif;text-align:center;padding:50px;background:#f9f9f9}
+.card{background:white;padding:40px;border-radius:15px;display:inline-block;box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+h1{color:#333;margin-bottom:10px;}
+img{width:250px;height:250px;}
+.url{color:#666;font-size:1.2em;margin-top:20px;word-break:break-all;}
+.note{color:#d32f2f;font-weight:bold;margin-top:20px;}
+</style>
+</head>
+<body>
+    <div class="card">
+        <h1>📱 注文はこちらから</h1>
+        <p>スマホのカメラで読み取ってください</p>
+        
+        <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+        
+        <p class="url">{{ url }}</p>
+        
+        <div class="note">
+            ※スマホとPCは同じWi-Fiに繋いでください
+        </div>
+    </div>
+</body>
+</html>

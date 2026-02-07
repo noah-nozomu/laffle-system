@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>商品詳細</title>
+<style>
+body{font-family:sans-serif;padding:20px;text-align:center;background:#f9f9f9}
+.container{background:white;padding:20px;border-radius:10px;max-width:600px;margin:auto}
+img{max-width:100%;border-radius:10px}
+input{width:100%;padding:10px;margin:10px 0;font-size:1.2em}
+.btn{background:#d32f2f;color:white;padding:15px;width:100%;border:none;border-radius:5px;font-size:1.2em;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="container">
+    {% if product.image %}<img src="{{ product.image.url }}">{% endif %}
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description|linebreaksbr }}</p>
+    <p style="color:#d32f2f;font-weight:bold;font-size:1.5em">¥{{ product.price }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <label>個数</label>
+        <input type="number" name="quantity" value="1" min="1">
+        <button type="submit" class="btn">カートに入れる</button>
+    </form>
+    <br>
+    <a href="{% url 'product_list' %}">戻る</a>
+</div>
+</body>
+</html>

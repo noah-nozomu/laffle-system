@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カート</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#f9f9f9}
+.container{background:white;padding:20px;border-radius:10px;max-width:600px;margin:auto}
+.item{border-bottom:1px solid #eee;padding:10px 0;display:flex;justify-content:space-between}
+/* 入力フォームのデザイン */
+input[type="text"] { width: 100%; padding: 12px; margin-top: 10px; font-size: 1.1em; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+label { font-weight: bold; display: block; margin-top: 20px; text-align: left; }
+.btn{background:#d32f2f;color:white;padding:15px;width:100%;border:none;border-radius:5px;font-size:1.2em;cursor:pointer;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🛒 カートの中身</h1>
+    {% for item in cart_items %}
+    <div class="item">
+        <span>{{ item.product.name }} x {{ item.quantity }}</span>
+        <span>¥{{ item.subtotal }}</span>
+    </div>
+    {% empty %}
+    <p>カートは空です</p>
+    {% endfor %}
+    <h2 style="text-align:right">合計: ¥{{ total_price }}</h2>
+
+    {% if cart_items %}
+    <form action="{% url 'order_complete' %}" method="post">
+        {% csrf_token %}
+        
+        <label>お名前をご入力ください：</label>
+        <input type="text" name="customer_name" placeholder="例：アサライ" required>
+
+        <button type="submit" class="btn">注文を確定する</button>
+    </form>
+    {% endif %}
+    <br><center><a href="{% url 'product_list' %}">買い物を続ける</a></center>
+</div>
+</body>
+</html>

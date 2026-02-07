@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="30">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>キッチンモニター | Staff Only</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#333;color:white;}
+h1{text-align:center;border-bottom:2px solid #555;padding-bottom:10px;}
+.order-card {
+    background: #fff; color: #333;
+    margin-bottom: 20px; padding: 15px; border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+.order-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 10px;
+}
+.customer-name { font-size: 1.5em; font-weight: bold; }
+.order-time { color: #666; font-size: 0.9em; }
+.order-items { list-style: none; padding: 0; margin: 0; }
+.order-items li { font-size: 1.2em; margin-bottom: 5px; border-bottom: 1px dotted #ccc;}
+.btn-done {
+    display: block; width: 100%; padding: 15px; margin-top: 15px;
+    background: #2e7d32; color: white; border: none; border-radius: 5px;
+    font-size: 1.2em; font-weight: bold; cursor: pointer;
+}
+.btn-done:hover { background: #1b5e20; }
+.empty-msg { text-align: center; color: #ccc; margin-top: 50px; font-size: 1.5em; }
+</style>
+</head>
+<body>
+    <h1>👩‍🍳 キッチンモニター (自動更新中)</h1>
+
+    {% for order in orders %}
+    <div class="order-card">
+        <div class="order-header">
+            <span class="customer-name">{{ order.customer_name }} 様</span>
+            <span class="order-time">{{ order.created_at|date:"H:i" }} 受付</span>
+        </div>
+        
+        <ul class="order-items">
+            {% for item in order.orderitem_set.all %}
+                <li>{{ item.product.name }} × {{ item.quantity }}</li>
+            {% endfor %}
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+            <button type="submit" class="btn-done">✅ 提供完了（消す）</button>
+        </form>
+    </div>
+    {% empty %}
+        <p class="empty-msg">現在、未提供の注文はありません。</p>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注文完了</title>
+<style>
+body{font-family:sans-serif;text-align:center;padding:50px;background:#f9f9f9}
+.name { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+    <h1 style="color:#d32f2f">ご注文ありがとうございます！</h1>
+    
+    {% if customer_name %}
+        <p class="name">{{ customer_name }} 様</p>
+    {% endif %}
+
+    <p>スタッフが商品をご用意します。<br>少々お待ちください。</p>
+    <br>
+    <a href="{% url 'product_list' %}">トップに戻る</a>
+</body>
+</html>

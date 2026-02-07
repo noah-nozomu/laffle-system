@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>メニュー一覧</title>
+<style>
+    body {
+        font-family: sans-serif;
+        padding: 20px;
+        background: #f9f9f9;
+        color: #333;
+    }
+    h1 {
+        text-align: center;
+        color: #d32f2f;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        max-width: 600px; /* カード自体の最大幅も設定して見やすく */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    /* ★ここが変更点です：画像のサイズを調整 */
+    .card img {
+        max-width: 100%; /* 親要素からはみ出さないように */
+        width: 300px;    /* 基本の幅を300pxに設定（お好みで変えてください） */
+        height: auto;    /* 高さは自動で比率を保つ */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* 少し影をつけて立体的に */
+        margin-bottom: 15px;
+    }
+    h2 {
+        margin: 10px 0;
+        font-size: 1.5em;
+    }
+    .description {
+        font-size: 0.95em;
+        color: #666;
+        margin: 15px 0;
+        text-align: left;
+        line-height: 1.6; /* 行間を少し広げて読みやすく */
+    }
+    .price {
+        font-weight: bold;
+        font-size: 1.3em;
+        color: #d32f2f;
+        margin: 15px 0;
+    }
+    .btn {
+        background: #d32f2f;
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 30px; /* 角を丸くして優しい印象に */
+        display: inline-block;
+        font-weight: bold;
+        transition: background 0.3s; /* ホバー時のアニメーション */
+    }
+    .btn:hover {
+        background: #b71c1c;
+    }
+</style>
+</head>
+<body>
+    <h1>🧇 Laffle Menu</h1>
+    {% for product in products %}
+    <div class="card">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% endif %}
+        <h2>{{ product.name }}</h2>
+        
+        <p class="description">{{ product.description|linebreaksbr }}</p>
+        
+        <p class="price">¥{{ product.price }}</p>
+        <a href="{% url 'product_detail' product.pk %}" class="btn">注文する</a>
+    </div>
+    {% endfor %}
+</body>
+</html>
