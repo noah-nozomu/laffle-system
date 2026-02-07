@@ -1,15 +1,20 @@
 import qrcode
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from io import BytesIO
 import base64
-from .models import Product  # 商品データを読み込むために必要です
+from .models import Product
 
-# 商品一覧を表示する機能（これが足りなかった！）
+# 1. 商品一覧を表示する機能
 def product_list(request):
     products = Product.objects.all()
     return render(request, 'store/product_list.html', {'products': products})
 
-# QRコードを生成する機能
+# 2. 商品の詳細を表示する機能（今回のエラーの原因はここ！）
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, 'store/product_detail.html', {'product': product})
+
+# 3. QRコードを生成する機能
 def generate_qr(request):
     url = "https://laffle.onrender.com"
     qr = qrcode.QRCode(
