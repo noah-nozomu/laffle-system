@@ -2,12 +2,15 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # 1. メニュー一覧（トップページ）
     path('', views.product_list, name='product_list'),
-    path('product/<int:pk>/', views.product_detail, name='product_detail'),
-    path('cart/', views.cart_detail, name='cart_detail'),
-    path('order-complete/', views.order_complete, name='order_complete'),
-    path('kitchen/', views.kitchen_monitor, name='kitchen_monitor'),
     
-    # ★ここを追加
-    path('qr/', views.qr_code_page, name='qr_code_page'),
+    # 2. 商品の詳細画面
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    
+    # 3. カートの中身を表示する画面
+    path('cart/', views.cart_detail, name='cart_detail'),
+    
+    # 4. QRコード生成画面
+    path('qr/', views.generate_qr, name='generate_qr'),
 ]

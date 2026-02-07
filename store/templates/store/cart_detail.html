@@ -1,42 +1,54 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>カート</title>
-<style>
-body{font-family:sans-serif;padding:20px;background:#f9f9f9}
-.container{background:white;padding:20px;border-radius:10px;max-width:600px;margin:auto}
-.item{border-bottom:1px solid #eee;padding:10px 0;display:flex;justify-content:space-between}
-/* 入力フォームのデザイン */
-input[type="text"] { width: 100%; padding: 12px; margin-top: 10px; font-size: 1.1em; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-label { font-weight: bold; display: block; margin-top: 20px; text-align: left; }
-.btn{background:#d32f2f;color:white;padding:15px;width:100%;border:none;border-radius:5px;font-size:1.2em;cursor:pointer;margin-top:20px}
-</style>
+    <meta charset="UTF-8">
+    <title>ショッピングカート - Laffle</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f8f8f8; }
+        .total { font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 20px; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #ff9900; color: white; text-decoration: none; border-radius: 5px; }
+        .back-link { display: block; margin-top: 20px; color: #666; }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>🛒 カートの中身</h1>
-    {% for item in cart_items %}
-    <div class="item">
-        <span>{{ item.product.name }} x {{ item.quantity }}</span>
-        <span>¥{{ item.subtotal }}</span>
-    </div>
-    {% empty %}
-    <p>カートは空です</p>
-    {% endfor %}
-    <h2 style="text-align:right">合計: ¥{{ total_price }}</h2>
+    <h1>🛒 ショッピングカート</h1>
 
     {% if cart_items %}
-    <form action="{% url 'order_complete' %}" method="post">
-        {% csrf_token %}
-        
-        <label>お名前をご入力ください：</label>
-        <input type="text" name="customer_name" placeholder="例：アサライ" required>
+        <table>
+            <thead>
+                <tr>
+                    <th>商品名</th>
+                    <th>価格</th>
+                    <th>数量</th>
+                    <th>小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>¥{{ item.product.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>¥{{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <button type="submit" class="btn">注文を確定する</button>
-    </form>
+        <div class="total">
+            合計金額: ¥{{ total_price }}
+        </div>
+
+        <div style="margin-top: 30px;">
+            <a href="#" class="btn">注文を確定する（準備中）</a>
+        </div>
+    {% else %}
+        <p>カートに商品が入っていません。</p>
     {% endif %}
-    <br><center><a href="{% url 'product_list' %}">買い物を続ける</a></center>
-</div>
+
+    <a href="{% url 'product_list' %}" class="back-link">← メニューに戻る</a>
 </body>
 </html>
