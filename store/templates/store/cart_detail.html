@@ -1,28 +1,15 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ショッピングカート - Laffle</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f8f8f8; }
-        .total { font-size: 1.2em; font-weight: bold; text-align: right; margin-top: 20px; }
-        .btn { display: inline-block; padding: 10px 20px; background-color: #ff9900; color: white; text-decoration: none; border-radius: 5px; }
-        .back-link { display: block; margin-top: 20px; color: #666; }
-    </style>
-</head>
-<body>
-    <h1>🛒 ショッピングカート</h1>
+{% extends 'store/base.html' %}
 
+{% block content %}
+<div class="container mt-5">
+    <h2>🛒 ショッピングカート</h2>
     {% if cart_items %}
-        <table>
+        <table class="table mt-4">
             <thead>
                 <tr>
                     <th>商品名</th>
                     <th>価格</th>
-                    <th>数量</th>
+                    <th>個数</th>
                     <th>小計</th>
                 </tr>
             </thead>
@@ -37,18 +24,15 @@
                 {% endfor %}
             </tbody>
         </table>
-
-        <div class="total">
-            合計金額: ¥{{ total_price }}
-        </div>
-
-        <div style="margin-top: 30px;">
-            <a href="#" class="btn">注文を確定する（準備中）</a>
+        <h3 class="text-end">合計: ¥{{ total_price }}</h3>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'checkout' %}" class="btn btn-danger btn-lg w-100">
+                注文を確定する
+            </a>
         </div>
     {% else %}
-        <p>カートに商品が入っていません。</p>
+        <p class="mt-4">カートは空です。</p>
+        <a href="{% url 'product_list' %}" class="btn btn-primary">メニューに戻る</a>
     {% endif %}
-
-    <a href="{% url 'product_list' %}" class="back-link">← メニューに戻る</a>
-</body>
-</html>
+</div>
