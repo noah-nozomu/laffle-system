@@ -2,37 +2,46 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>🛒 ショッピングカート</h2>
+    <h2 class="mb-4">🛒 カートの中身</h2>
+    
     {% if cart_items %}
-        <table class="table mt-4">
-            <thead>
-                <tr>
-                    <th>商品名</th>
-                    <th>価格</th>
-                    <th>個数</th>
-                    <th>小計</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                <tr>
-                    <td>{{ item.product.name }}</td>
-                    <td>¥{{ item.product.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>¥{{ item.subtotal }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h3 class="text-end">合計: ¥{{ total_price }}</h3>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>商品</th>
+                        <th>価格</th>
+                        <th>個数</th>
+                        <th>小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>¥{{ item.product.price }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>¥{{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <h3 class="text-end my-4">合計: ¥{{ total_price }}</h3>
         
-        <div class="text-center mt-5">
-            <a href="{% url 'checkout' %}" class="btn btn-danger btn-lg w-100">
+        <div class="text-center mb-5">
+            <a href="{% url 'checkout' %}" class="btn btn-danger btn-lg w-100 py-3">
                 注文を確定する
             </a>
         </div>
     {% else %}
-        <p class="mt-4">カートは空です。</p>
-        <a href="{% url 'product_list' %}" class="btn btn-primary">メニューに戻る</a>
+        <div class="alert alert-info text-center">
+            カートは空っぽです。
+        </div>
+        <div class="text-center">
+            <a href="{% url 'product_list' %}" class="btn btn-primary">メニューを見る</a>
+        </div>
     {% endif %}
 </div>
+{% endblock %}
