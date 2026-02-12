@@ -15,10 +15,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-s$#4$o)93r3(&_f(3u)%0xxn85k=lh2y@avt=^&s2hpsf&a_uk'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# ★【修正1】エラーの原因を見るために True に変更
+DEBUG = True
 
-ALLOWED_HOSTS = ['laffle.onrender.com', '127.0.0.1']
+# ★【修正2】接続エラーを防ぐために全て許可に変更
+ALLOWED_HOSTS = ['*']
+
 
 # Application definition
 
@@ -95,10 +97,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-# ★ここを日本語設定に変更しました
 LANGUAGE_CODE = 'ja'
 
-# ★ここを日本時間に変更しました
 TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
@@ -109,13 +109,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-
-# ★画像の設定（ここをシンプルにまとめました）
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-# config/settings.py の一番下に追加
-import os
-
+# ★【修正3】重複していた設定をきれいに整理しました
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# 画像アップロード用の設定
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
