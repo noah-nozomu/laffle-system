@@ -114,3 +114,8 @@ STATIC_URL = 'static/'
 # ★画像の設定（ここをシンプルにまとめました）
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+# config/settings.py の一番下に追加
+import os
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
