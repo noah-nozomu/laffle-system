@@ -30,12 +30,23 @@
 
         <h3 class="text-end my-4">合計: ¥{{ total_price }}</h3>
         
-        <div class="text-center mb-5">
-            <a href="{% url 'checkout' %}" class="btn btn-danger btn-lg w-100 py-3">
-                注文を確定する
-            </a>
+        <div class="card shadow-sm p-4 mb-5 bg-light">
+            <h4 class="mb-3">📝 お客様情報</h4>
+            
+            <form action="{% url 'checkout' %}" method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="customer_name" class="form-label fw-bold">お名前（呼び出し用）</label>
+                    <input type="text" name="customer_name" id="customer_name" class="form-control form-control-lg" placeholder="例：ラッフル太郎" required>
+                </div>
+                
+                <button type="submit" class="btn btn-danger btn-lg w-100 py-3 mt-2">
+                    注文を確定する
+                </button>
+            </form>
         </div>
-    {% else %}
+        {% else %}
         <div class="alert alert-info text-center">
             カートは空っぽです。
         </div>

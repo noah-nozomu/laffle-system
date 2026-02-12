@@ -13,12 +13,15 @@ class Product(models.Model):
 
 # 注文データ（レシート全体）
 class Order(models.Model):
+    # ★ここにお客様の名前を追加しました
+    customer_name = models.CharField(max_length=100, default="お客様", verbose_name="お名前")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="注文日時")
     total_price = models.IntegerField(default=0, verbose_name="合計金額")
     is_completed = models.BooleanField(default=False, verbose_name="提供済み")
 
     def __str__(self):
-        return f"注文 #{self.id} - ¥{self.total_price}"
+        # 管理画面などで見やすいように名前を表示します
+        return f"{self.customer_name} 様 - ¥{self.total_price}"
 
 # 注文明細（レシートの各行）
 class OrderItem(models.Model):
