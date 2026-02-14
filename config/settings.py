@@ -4,6 +4,7 @@ Django settings for config project.
 
 from pathlib import Path
 import os
+import dj_database_url  # ★追加：これがデータベース切替の立役者です
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,10 +16,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-s$#4$o)93r3(&_f(3u)%0xxn85k=lh2y@avt=^&s2hpsf&a_uk'
 
-# ★【修正1】エラーの原因を見るために True に変更
+# ★エラーの原因を見るために True に変更
 DEBUG = True
 
-# ★【修正2】接続エラーを防ぐために全て許可に変更
+# ★接続エラーを防ぐために全て許可に変更
 ALLOWED_HOSTS = ['*']
 
 
@@ -67,12 +68,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# ★【ここが一番重要な変更点】
+# 基本は自分のPC用の設定（sqlite3）をしておく
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# もしRender上にいて「DATABASE_URL」という設定が見つかったら、
+# 自動的にNeon（PostgreSQL）の設定で上書きする
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation
@@ -109,7 +117,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-# ★【修正3】重複していた設定をきれいに整理しました
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
