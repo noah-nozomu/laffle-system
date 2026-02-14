@@ -1,57 +1,73 @@
 {% extends 'store/base.html' %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <h2 class="mb-4">🛒 カートの中身</h2>
-    
-    {% if cart_items %}
-        <div class="table-responsive">
-            <table class="table table-striped align-middle">
-                <thead>
-                    <tr>
-                        <th>商品</th>
-                        <th>価格</th>
-                        <th>個数</th>
-                        <th>小計</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>¥{{ item.product.price }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>¥{{ item.subtotal }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
 
-        <h3 class="text-end my-4">合計: ¥{{ total_price }}</h3>
-        
-        <div class="card shadow-sm p-4 mb-5 bg-light">
-            <h4 class="mb-3">📝 お客様情報</h4>
-            
-            <form action="{% url 'checkout' %}" method="POST">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label for="customer_name" class="form-label fw-bold">お名前（呼び出し用）</label>
-                    <input type="text" name="customer_name" id="customer_name" class="form-control form-control-lg" placeholder="例：ラッフル太郎" required>
-                </div>
-                
-                <button type="submit" class="btn btn-danger btn-lg w-100 py-3 mt-2">
-                    注文を確定する
-                </button>
-            </form>
-        </div>
-        {% else %}
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>商品名</th>
+                    <th>価格</th>
+                    <th>個数</th>
+                    <th>小計</th>
+                    <th>削除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td class="align-middle">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+                        {% endif %}
+                        {{ item.product.name }}
+                    </td>
+                    <td class="align-middle">¥{{ item.product.price }}</td>
+                    
+                    <td class="align-middle">
+                        <form action="{% url 'update_cart' item.product.id %}" method="post" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 70px; margin-right: 5px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">更新</button>
+                        </form>
+                    </td>
+                    
+                    <td class="align-middle">¥{{ item.subtotal }}</td>
+                    
+                    <td class="align-middle text-center">
+                        <a href="{% url 'remove_from_cart' item.product.id %}" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">
+                            削除
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <h3>合計: ¥{{ total_price }}</h3>
+    </div>
+
+    <div class="card mt-4 p-4 shadow-sm">
+        <h4>📝 お客様情報</h4>
+        <form action="{% url 'checkout' %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="customer_name" class="form-label">お名前（呼び出し用）</label>
+                <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="例：ラッフル太郎" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fs-5">注文を確定する</button>
+        </form>
+    </div>
+
+    {% else %}
         <div class="alert alert-info text-center">
-            カートは空っぽです。
-        </div>
-        <div class="text-center">
-            <a href="{% url 'product_list' %}" class="btn btn-primary">メニューを見る</a>
+            カートは空です 🍃<br>
+            <a href="{% url 'product_list' %}" class="btn btn-primary mt-3">メニューに戻る</a>
         </div>
     {% endif %}
 </div>
