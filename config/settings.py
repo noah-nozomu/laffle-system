@@ -4,7 +4,7 @@ Django settings for config project.
 
 from pathlib import Path
 import os
-import dj_database_url  # ★追加：これがデータベース切替の立役者です
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,7 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'store', # アプリケーション
+    'cloudinary',           # ★追加：Cloudinary本体
+    'cloudinary_storage',   # ★追加：Djangoとの連携ツール
+    'store',                # あなたのアプリ
 ]
 
 MIDDLEWARE = [
@@ -68,7 +70,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# ★【ここが一番重要な変更点】
 # 基本は自分のPC用の設定（sqlite3）をしておく
 DATABASES = {
     'default': {
@@ -77,7 +78,7 @@ DATABASES = {
     }
 }
 
-# もしRender上にいて「DATABASE_URL」という設定が見つかったら、
+# Render上にいて「DATABASE_URL」という設定が見つかったら、
 # 自動的にNeon（PostgreSQL）の設定で上書きする
 db_from_env = dj_database_url.config(conn_max_age=600)
 DATABASES['default'].update(db_from_env)
@@ -123,3 +124,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # 画像アップロード用の設定
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ★★★ Cloudinaryの特別設定 ★★★
+# ここで画像を「Render」ではなく「Cloudinary」に保存するように指示します
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dhsqyxa7k',
+    'API_KEY': '297597379169819',
+    'API_SECRET': 'QeSEaMB_Y-wQrhaO7nzm4yZS8j8',
+}
+
+# Djangoに「これからはCloudinaryを使うよ」と伝えます
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
