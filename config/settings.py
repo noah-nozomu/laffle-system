@@ -128,11 +128,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ★★★ Cloudinaryの特別設定 ★★★
 # ここで画像を「Render」ではなく「Cloudinary」に保存するように指示します
 
+# ★★★ Cloudinaryの設定 ★★★
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dhsqyxa7k',
     'API_KEY': '297597379169819',
     'API_SECRET': 'QeSEaMB_Y-wQrhaO7nzm4yZS8j8',
 }
 
-# Djangoに「これからはCloudinaryを使うよ」と伝えます
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# ★★★ ここが修正ポイント！ ★★★
+# 古い書き方（DEFAULT_FILE_STORAGE）をやめて、
+# 新しい書き方（STORAGES）で強制的にCloudinaryを指定します
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
