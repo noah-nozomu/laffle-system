@@ -32,8 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary',           # ★追加：Cloudinary本体
-    'cloudinary_storage',   # ★追加：Djangoとの連携ツール
+    'cloudinary',           # Cloudinary本体
+    'cloudinary_storage',   # Djangoとの連携ツール
     'store',                # あなたのアプリ
 ]
 
