@@ -12,17 +12,18 @@
             padding: 20px; 
             margin: 0;
         }
-        h1 { color: #d9534f; margin-top: 30px; font-size: 28px; }
-        p { color: #666; margin-bottom: 30px; }
+        h1 { color: #d9534f; margin-top: 20px; font-size: 24px; }
+        p { color: #666; margin-bottom: 25px; font-size: 14px; }
         
+        /* ★2列に並べるグリッド設定 */
         .category-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-            padding: 0 10px;
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); /* 2列にする */
+            gap: 15px; /* カード同士の隙間 */
+            padding: 0 5px;
         }
         
-        /* ボタンのデザイン */
+        /* ★カードのデザイン（1枚目の画像風） */
         .category-btn {
             display: flex;
             flex-direction: column;
@@ -31,25 +32,28 @@
             background-color: #fff;
             color: #333;
             text-decoration: none;
-            font-size: 24px;
+            font-size: 18px; /* 文字を少し小さく */
             font-weight: bold;
-            padding: 20px;
+            padding: 15px 10px;
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             transition: transform 0.2s;
+            border-bottom: 5px solid #eee; /* 下に少しアクセント */
         }
-        .category-btn:active { transform: scale(0.98); }
-        .btn-waffle { border-bottom: 6px solid #ffcc00; }
-        .btn-drink { border-bottom: 6px solid #8c52ff; }
+        .category-btn:active { transform: scale(0.95); }
+        .btn-waffle { border-bottom-color: #ffcc00; }
+        .btn-drink { border-bottom-color: #8c52ff; }
         
-        /* 画像のサイズ調整 */
+        /* ★画像のサイズ調整：正方形でカード内に収める */
+      /* 画像のサイズ調整：1枚目の画像（紅茶オレンジ）のような収まりにする */
         .category-img {
-            width: 100%;         /* 横幅は親要素（ボタン）いっぱいにする */
-            height: auto;        /* 高さは自動計算にする（150pxから変更） */
-            aspect-ratio: 1 / 1; /* ★ここを追加：正方形にする（縦横比 1:1） */
-            object-fit: cover;   /* 画像を枠いっぱいに綺麗にはめ込む */
-            border-radius: 10px;
-            margin-bottom: 15px;
+            width: 80%;           /* ★横幅を少し絞って、カードの中に余白を作る */
+            max-width: 180px;     /* ★大きくなりすぎないように制限 */
+            aspect-ratio: 1 / 1;  /* ★正方形を維持 */
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 0 auto 10px;  /* ★左右中央に配置して、文字との間に余白を作る */
+            display: block;
         }
     </style>
 </head>

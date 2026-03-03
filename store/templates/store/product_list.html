@@ -1,85 +1,95 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>メニュー一覧</title>
-<style>
-    body {
-        font-family: sans-serif;
-        padding: 20px;
-        background: #f9f9f9;
-        color: #333;
-    }
-    h1 {
-        text-align: center;
-        color: #d32f2f;
-    }
-    .card {
-        background: white;
-        padding: 20px;
-        margin-bottom: 25px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        max-width: 600px; /* カード自体の最大幅も設定して見やすく */
-        margin-left: auto;
-        margin-right: auto;
-    }
-    /* ★ここが変更点です：画像のサイズを調整 */
-    .card img {
-        max-width: 100%; /* 親要素からはみ出さないように */
-        width: 300px;    /* 基本の幅を300pxに設定（お好みで変えてください） */
-        height: auto;    /* 高さは自動で比率を保つ */
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* 少し影をつけて立体的に */
-        margin-bottom: 15px;
-    }
-    h2 {
-        margin: 10px 0;
-        font-size: 1.5em;
-    }
-    .description {
-        font-size: 0.95em;
-        color: #666;
-        margin: 15px 0;
-        text-align: left;
-        line-height: 1.6; /* 行間を少し広げて読みやすく */
-    }
-    .price {
-        font-weight: bold;
-        font-size: 1.3em;
-        color: #d32f2f;
-        margin: 15px 0;
-    }
-    .btn {
-        background: #d32f2f;
-        color: white;
-        padding: 12px 30px;
-        text-decoration: none;
-        border-radius: 30px; /* 角を丸くして優しい印象に */
-        display: inline-block;
-        font-weight: bold;
-        transition: background 0.3s; /* ホバー時のアニメーション */
-    }
-    .btn:hover {
-        background: #b71c1c;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laffle メニュー</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f9f9f9; margin: 0; padding: 0; }
+        
+        .header {
+            position: sticky; top: 0; z-index: 1000; background: white; text-align: center;
+            padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .back-btn {
+            position: absolute; left: 15px; text-decoration: none; color: #d9534f;
+            font-weight: bold; font-size: 14px; background: #ffe6e6; padding: 6px 12px; border-radius: 20px;
+        }
+        .header h1 { color: #d9534f; margin: 0; font-size: 20px; }
+
+        /* ★ ここがポイント！パソコンで見てもスマホサイズに収まるように制限 */
+        .main-container {
+            max-width: 500px; /* 最大幅を制限 */
+            margin: 0 auto;   /* 画面の中央に寄せる */
+        }
+
+        .product-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px;
+        }
+        .product-card {
+            background: white; border-radius: 12px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column; justify-content: space-between;
+            align-items: center; /* ★ カードの中身を中央揃えにする */
+        }
+        
+        /* ★ 画像を少し小さくして余白を作る */
+        .product-image {
+            width: 85%; /* カードいっぱいにせず、少し小さくする */
+            aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px;
+            margin-bottom: 10px; margin-top: 5px;
+        }
+        
+        .product-name { font-size: 15px; font-weight: bold; margin: 5px 0; text-align: center; }
+        .product-desc { font-size: 11px; color: #666; margin-bottom: 10px; text-align: center; }
+        .product-price { color: #d9534f; font-weight: bold; font-size: 16px; text-align: center; margin-bottom: 10px; }
+
+        .order-form { width: 100%; text-align: center; }
+        .order-btn {
+            background-color: #d9534f; color: white; border: none; padding: 8px 0;
+            width: 90%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;
+        }
+        .cart-link {
+            display: block; text-align: center; background-color: #333; color: white;
+            padding: 15px; text-decoration: none; font-weight: bold;
+            position: fixed; bottom: 0; width: 100%; z-index: 1000; left: 0;
+        }
+        .spacer { height: 70px; }
+    </style>
 </head>
 <body>
-    <h1>🧇 Laffle Menu</h1>
-    {% for product in products %}
-    <div class="card">
-        {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
-        {% endif %}
-        <h2>{{ product.name }}</h2>
-        
-        <p class="description">{{ product.description|linebreaksbr }}</p>
-        
-        <p class="price">¥{{ product.price }}</p>
-        <a href="{% url 'product_detail' product.pk %}" class="btn">注文する</a>
+    <div class="header">
+        <a href="{% url 'category_list' %}" class="back-btn">← トップ</a>
+        <h1>🧇 Laffle</h1>
     </div>
-    {% endfor %}
+
+    <div class="main-container">
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <div class="product-image" style="background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px;">画像なし</div>
+                {% endif %}
+                
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-desc">{{ product.description|truncatechars:20 }}</div>
+                <div class="product-price">¥{{ product.price }}</div>
+                
+                <form action="{% url 'add_to_cart' product.pk %}" method="post" class="order-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="order-btn">注文する</button>
+                </form>
+            </div>
+            {% empty %}
+            <p style="grid-column: span 2; text-align: center; padding: 20px; color: #666;">このカテゴリにはまだ商品がありません。</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+    <a href="{% url 'cart_detail' %}" class="cart-link">🛒 カートを見る</a>
 </body>
 </html>
