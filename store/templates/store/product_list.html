@@ -80,7 +80,7 @@
                 <form action="{% url 'add_to_cart' product.pk %}" method="post" class="order-form">
                     {% csrf_token %}
                     <input type="hidden" name="quantity" value="1">
-                    <button type="submit" class="order-btn">注文する</button>
+                    <button type="submit" class="order-btn">カートに入れる</button>
                 </form>
             </div>
             {% empty %}
