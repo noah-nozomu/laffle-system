@@ -3,7 +3,17 @@ from django.utils import timezone
 
 # 商品データ
 class Product(models.Model):
+    # ★ここを追加：カテゴリの選択肢を作ります
+    CATEGORY_CHOICES = (
+        ('waffle', 'ワッフル'),
+        ('drink', 'ドリンク'),
+    )
+
     name = models.CharField(max_length=100, verbose_name="商品名")
+    
+    # ★ここを追加：商品ごとにカテゴリを選べるようにします
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='waffle', verbose_name="カテゴリ")
+    
     description = models.TextField(blank=True, null=True, verbose_name="説明")
     price = models.IntegerField(verbose_name="価格")
     image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name="商品画像")
