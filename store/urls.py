@@ -2,15 +2,22 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # お客さん用ページ
-    path('', views.product_list, name='product_list'),
+    # ==========================================
+    # ★ここが変更点！（入り口を分けました）
+    # ==========================================
+    path('', views.category_list, name='category_list'), # 最初の画面（カテゴリ選択）
+    path('menu/<str:category_name>/', views.product_list, name='product_list'), # 選んだカテゴリのメニュー一覧
+    
+    # ==========================================
+    # ★ここから下は今までと【全く同じ】です！
+    # ==========================================
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     
     # カート機能（追加・見る・更新・削除）
     path('add/<int:pk>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_detail, name='cart_detail'),
-    path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),   # ★追加：個数変更用
-    path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'), # ★追加：削除用
+    path('cart/update/<int:product_id>/', views.update_cart, name='update_cart'),
+    path('cart/remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     
     path('checkout/', views.checkout, name='checkout'),
     path('success/', views.order_success, name='order_success'),

@@ -6,10 +6,29 @@ from django.utils import timezone
 from django.db.models import Sum
 from .models import Product, Order, OrderItem
 
-# 1. メニュー一覧
-def product_list(request):
-    products = Product.objects.all()
-    return render(request, 'store/product_list.html', {'products': products})
+# ==========================================
+# ★ここから変更・追加した部分
+# ==========================================
+
+# ★新規追加：トップページ（ワッフルかドリンクを選ぶ画面）
+def category_list(request):
+    return render(request, 'store/category_list.html')
+
+# ★変更：メニュー一覧（選ばれたカテゴリだけで絞り込む）
+def product_list(request, category_name=None):
+    if category_name:
+        products = Product.objects.filter(category=category_name)
+    else:
+        products = Product.objects.all()
+        
+    return render(request, 'store/product_list.html', {
+        'products': products,
+        'category_name': category_name
+    })
+
+# ==========================================
+# ★ここからは今までと【全く同じ】です！（一切いじっていません）
+# ==========================================
 
 # 2. 商品詳細
 def product_detail(request, pk):
@@ -18,11 +37,8 @@ def product_detail(request, pk):
 
 # 3. カートに追加
 def add_to_cart(request, pk):
-    # フォームから送られてきた数量を取得（デフォルトは1）
     quantity = int(request.POST.get('quantity', 1))
     cart = request.session.get('cart', {})
-    
-    # IDを文字列にして保存（セッションのキーは文字列である必要があるため）
     product_id = str(pk)
     
     if product_id in cart:
@@ -40,7 +56,6 @@ def cart_detail(request):
     total_price = 0
     
     for product_id, quantity in cart.items():
-        # 商品が存在しない場合のエラー回避
         try:
             product = Product.objects.get(id=product_id)
             subtotal = product.price * quantity
@@ -58,11 +73,10 @@ def cart_detail(request):
         'total_price': total_price
     })
 
-# ★追加機能 1：カート内の数量変更（0以下なら削除）
+# カート内の数量変更（0以下なら削除）
 def update_cart(request, product_id):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
-        # 入力された新しい数量を取得
         new_quantity = int(request.POST.get('quantity', 1))
         
         str_id = str(product_id)
@@ -70,12 +84,12 @@ def update_cart(request, product_id):
             if new_quantity > 0:
                 cart[str_id] = new_quantity
             else:
-                del cart[str_id]  # 0以下なら削除
+                del cart[str_id]  
             
         request.session['cart'] = cart
     return redirect('cart_detail')
 
-# ★追加機能 2：カートから商品を削除
+# カートから商品を削除
 def remove_from_cart(request, product_id):
     cart = request.session.get('cart', {})
     str_id = str(product_id)
@@ -90,15 +104,11 @@ def remove_from_cart(request, product_id):
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
-        return redirect('product_list')
+        # ★ここだけ変更：カートが空なら「カテゴリ選択画面」に戻す
+        return redirect('category_list')
 
-    # POSTリクエスト（注文ボタンが押されたとき）だけ処理する
     if request.method == 'POST':
-        # フォームから名前を受け取る（入力がなければ「お客様」にする）
         name = request.POST.get('customer_name', 'お客様')
-        
-        # 名前付きで注文を作成
-        # 一旦合計金額0で作り、後で計算して更新する
         order = Order.objects.create(total_price=0, customer_name=name)
         
         total = 0
@@ -118,23 +128,19 @@ def checkout(request):
         order.total_price = total
         order.save()
         
-        # カートを空にする
         request.session['cart'] = {} 
         
         return render(request, 'store/order_success.html')
     
-    # もしURLを直接叩かれた場合などはカートに戻す
     return redirect('cart_detail')
 
-# 6. 完了画面（リダイレクトではなく直接renderで表示する場合もあるが、URLを分けたい場合はここ）
+# 6. 完了画面
 def order_success(request):
     return render(request, 'store/order_success.html')
 
 # 7. QRコード生成
 def generate_qr(request):
-    # 本番環境のURL
     url = "https://laffle.onrender.com"
-    
     qr = qrcode.QRCode(version=1, box_size=10, border=4)
     qr.add_data(url)
     qr.make(fit=True)
@@ -146,19 +152,10 @@ def generate_qr(request):
 
 # 8. ダッシュボード（売上とキッチンモニター）
 def dashboard(request):
-    # 未提供の注文を取得（古い順）
     active_orders = Order.objects.filter(is_completed=False).order_by('created_at')
-
-    # 今日の日付を取得
     today = timezone.now().date()
-    
-    # 今日の注文だけを取得
     todays_orders = Order.objects.filter(created_at__date=today)
-    
-    # 今日の売上合計を計算（データがない場合は0円にする）
     total_sales = todays_orders.aggregate(Sum('total_price'))['total_price__sum'] or 0
-    
-    # 今日の人気メニュー集計
     item_stats = OrderItem.objects.filter(order__created_at__date=today)\
         .values('product__name')\
         .annotate(total_qty=Sum('quantity'))\

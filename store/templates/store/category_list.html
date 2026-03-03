@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laffle オーダー</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background-color: #f9f9f9; 
+            text-align: center; 
+            padding: 20px; 
+            margin: 0;
+        }
+        h1 { color: #d9534f; margin-top: 30px; font-size: 28px; }
+        p { color: #666; margin-bottom: 30px; }
+        
+        .category-container { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+            padding: 0 10px;
+        }
+        .category-btn {
+            display: block;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 40px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .category-btn:active { transform: scale(0.98); }
+        .btn-waffle { border-bottom: 6px solid #ffcc00; }
+        .btn-drink { border-bottom: 6px solid #8c52ff; }
+        .icon { font-size: 45px; display: block; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Laffle</h1>
+    <p>ご注文のカテゴリを選んでください</p>
+    
+    <div class="category-container">
+        <a href="{% url 'product_list' 'waffle' %}" class="category-btn btn-waffle">
+            <span class="icon">🧇</span>
+            ワッフル
+        </a>
+        
+        <a href="{% url 'product_list' 'drink' %}" class="category-btn btn-drink">
+            <span class="icon">☕</span>
+            ドリンク
+        </a>
+    </div>
+</body>
+</html>
