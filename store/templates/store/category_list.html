@@ -44,9 +44,10 @@
         
         /* 画像のサイズ調整 */
         .category-img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
+            width: 100%;         /* 横幅は親要素（ボタン）いっぱいにする */
+            height: auto;        /* 高さは自動計算にする（150pxから変更） */
+            aspect-ratio: 1 / 1; /* ★ここを追加：正方形にする（縦横比 1:1） */
+            object-fit: cover;   /* 画像を枠いっぱいに綺麗にはめ込む */
             border-radius: 10px;
             margin-bottom: 15px;
         }
