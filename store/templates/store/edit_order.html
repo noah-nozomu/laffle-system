@@ -44,5 +44,42 @@
             </form>
         </div>
     </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white fw-bold">
+            ➕ 商品を追加
+        </div>
+        <div class="card-body">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>商品名</th>
+                        <th style="width: 80px;">単価</th>
+                        <th style="width: 100px;">数量</th>
+                        <th style="width: 80px;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>¥{{ product.price }}</td>
+                        <td>
+                            <form method="post" action="{% url 'add_item_to_order' order.id %}" class="d-flex gap-1">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="number" name="quantity" value="1" min="1" max="20"
+                                       class="form-control form-control-sm">
+                        </td>
+                        <td>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">追加</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 {% endblock %}

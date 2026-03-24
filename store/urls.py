@@ -34,4 +34,5 @@ urlpatterns = [
     # 注文の削除・編集
     path('dashboard/delete/<int:order_id>/', views.delete_order, name='delete_order'),
     path('dashboard/edit/<int:order_id>/', views.edit_order, name='edit_order'),
+    path('dashboard/order/<int:order_id>/add-item/', views.add_item_to_order, name='add_item_to_order'),
 ]

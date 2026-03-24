@@ -109,27 +109,46 @@ def checkout(request):
 
     if request.method == 'POST':
         name = request.POST.get('customer_name', 'お客様')
-        order = Order.objects.create(total_price=0, customer_name=name)
-        
-        total = 0
+
+        # セッションキーを確保（未作成なら作成）
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
+
+        # 同じセッション＋同じ名前の未完了注文を探す
+        existing_order = Order.objects.filter(
+            session_key=session_key,
+            customer_name=name,
+            is_completed=False
+        ).first()
+
+        if existing_order:
+            order = existing_order
+        else:
+            order = Order.objects.create(total_price=0, customer_name=name, session_key=session_key)
+
         for product_id, quantity in cart.items():
             try:
                 product = Product.objects.get(id=product_id)
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=quantity,
-                    price=product.price
-                )
-                total += product.price * quantity
+                existing_item = order.items.filter(product=product).first()
+                if existing_item:
+                    existing_item.quantity += quantity
+                    existing_item.save()
+                else:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=product,
+                        quantity=quantity,
+                        price=product.price
+                    )
             except Product.DoesNotExist:
                 continue
-        
-        order.total_price = total
+
+        order.total_price = sum(i.price * i.quantity for i in order.items.all())
         order.save()
-        
-        request.session['cart'] = {} 
-        
+
+        request.session['cart'] = {}
+
         return render(request, 'store/order_success.html')
     
     return redirect('cart_detail')
@@ -204,4 +223,25 @@ def edit_order(request, order_id):
         else:
             order.delete()
         return redirect('dashboard')
-    return render(request, 'store/edit_order.html', {'order': order})
+    products = Product.objects.all()
+    return render(request, 'store/edit_order.html', {'order': order, 'products': products})
+
+# 12. 編集画面から商品を追加
+def add_item_to_order(request, order_id):
+    if request.method == 'POST':
+        order = get_object_or_404(Order, id=order_id)
+        product_id = request.POST.get('product_id')
+        quantity = int(request.POST.get('quantity', 1))
+        product = get_object_or_404(Product, id=product_id)
+
+        existing = order.items.filter(product=product).first()
+        if existing:
+            existing.quantity += quantity
+            existing.save()
+        else:
+            OrderItem.objects.create(order=order, product=product, quantity=quantity, price=product.price)
+
+        order.total_price = sum(i.price * i.quantity for i in order.items.all())
+        order.save()
+
+    return redirect('edit_order', order_id=order_id)
