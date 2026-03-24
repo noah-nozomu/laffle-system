@@ -10,9 +10,19 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=100, verbose_name="商品名")
-    
+
     # ★ここを追加：商品ごとにカテゴリを選べるようにします
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='waffle', verbose_name="カテゴリ")
+
+    TEMPERATURE_CHOICES = [
+        ('none', '選択なし'),
+        ('both', 'ホット・アイス'),
+        ('hot',  'ホットのみ'),
+        ('ice',  'アイスのみ'),
+    ]
+    temperature_option = models.CharField(
+        max_length=10, choices=TEMPERATURE_CHOICES, default='none', verbose_name="温度オプション"
+    )
     
     description = models.TextField(blank=True, null=True, verbose_name="説明")
     price = models.IntegerField(verbose_name="価格")
@@ -40,6 +50,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="商品")
     quantity = models.IntegerField(default=1, verbose_name="個数")
     price = models.IntegerField(verbose_name="購入時の価格")
+    temperature = models.CharField(max_length=5, blank=True, null=True, verbose_name="温度")
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"

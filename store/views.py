@@ -39,14 +39,21 @@ def product_detail(request, pk):
 # 3. カートに追加
 def add_to_cart(request, pk):
     quantity = int(request.POST.get('quantity', 1))
+    temperature = request.POST.get('temperature', '')
     cart = request.session.get('cart', {})
     product_id = str(pk)
-    
+
     if product_id in cart:
-        cart[product_id] += quantity
+        existing = cart[product_id]
+        if isinstance(existing, dict):
+            existing['quantity'] += quantity
+            if temperature:
+                existing['temperature'] = temperature
+        else:
+            cart[product_id] = {'quantity': existing + quantity, 'temperature': temperature}
     else:
-        cart[product_id] = quantity
-    
+        cart[product_id] = {'quantity': quantity, 'temperature': temperature}
+
     request.session['cart'] = cart
     return redirect('cart_detail')
 
@@ -55,22 +62,29 @@ def cart_detail(request):
     cart = request.session.get('cart', {})
     cart_items = []
     total_price = 0
-    
-    for product_id, quantity in cart.items():
+
+    for product_id, item_data in cart.items():
         try:
             product = Product.objects.get(id=product_id)
+            if isinstance(item_data, dict):
+                quantity = item_data.get('quantity', 1)
+                temperature = item_data.get('temperature', '')
+            else:
+                quantity = item_data
+                temperature = ''
             subtotal = product.price * quantity
             total_price += subtotal
             cart_items.append({
-                'product': product, 
-                'quantity': quantity, 
+                'product': product,
+                'quantity': quantity,
+                'temperature': temperature,
                 'subtotal': subtotal
             })
         except Product.DoesNotExist:
             continue
-        
+
     return render(request, 'store/cart_detail.html', {
-        'cart_items': cart_items, 
+        'cart_items': cart_items,
         'total_price': total_price
     })
 
@@ -79,14 +93,21 @@ def update_cart(request, product_id):
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         new_quantity = int(request.POST.get('quantity', 1))
-        
+
+        temperature = request.POST.get('temperature', '')
         str_id = str(product_id)
         if str_id in cart:
             if new_quantity > 0:
-                cart[str_id] = new_quantity
+                existing = cart[str_id]
+                if isinstance(existing, dict):
+                    existing['quantity'] = new_quantity
+                    if temperature:
+                        existing['temperature'] = temperature
+                else:
+                    cart[str_id] = {'quantity': new_quantity, 'temperature': temperature}
             else:
-                del cart[str_id]  
-            
+                del cart[str_id]
+
         request.session['cart'] = cart
     return redirect('cart_detail')
 
@@ -126,9 +147,15 @@ def checkout(request):
         else:
             order = Order.objects.create(total_price=0, customer_name=name, device_id=device_id)
 
-        for product_id, quantity in cart.items():
+        for product_id, item_data in cart.items():
             try:
                 product = Product.objects.get(id=product_id)
+                if isinstance(item_data, dict):
+                    quantity = item_data.get('quantity', 1)
+                    temperature = item_data.get('temperature', '') or None
+                else:
+                    quantity = item_data
+                    temperature = None
                 existing_item = order.items.filter(product=product).first()
                 if existing_item:
                     existing_item.quantity += quantity
@@ -138,7 +165,8 @@ def checkout(request):
                         order=order,
                         product=product,
                         quantity=quantity,
-                        price=product.price
+                        price=product.price,
+                        temperature=temperature,
                     )
             except Product.DoesNotExist:
                 continue

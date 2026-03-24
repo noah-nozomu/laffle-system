@@ -17,5 +17,10 @@ class OrderAdmin(admin.ModelAdmin):
     
     inlines = [OrderItemInline]
 
-admin.site.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'category', 'price', 'temperature_option')
+    list_editable = ('temperature_option',)
+    list_filter = ('category', 'temperature_option')
+
+admin.site.register(Product, ProductAdmin)
 admin.site.register(Order, OrderAdmin)
