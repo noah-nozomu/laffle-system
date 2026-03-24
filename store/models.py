@@ -25,7 +25,7 @@ class Product(models.Model):
 class Order(models.Model):
     # ★ここにお客様の名前を追加しました
     customer_name = models.CharField(max_length=100, default="お客様", verbose_name="お名前")
-    session_key = models.CharField(max_length=40, null=True, blank=True, verbose_name="セッションキー")
+    device_id = models.CharField(max_length=36, null=True, blank=True, verbose_name="デバイスID")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="注文日時")
     total_price = models.IntegerField(default=0, verbose_name="合計金額")
     is_completed = models.BooleanField(default=False, verbose_name="提供済み")

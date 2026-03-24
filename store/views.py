@@ -1,3 +1,4 @@
+import uuid
 import qrcode
 import base64
 from io import BytesIO
@@ -110,14 +111,12 @@ def checkout(request):
     if request.method == 'POST':
         name = request.POST.get('customer_name', 'お客様')
 
-        # セッションキーを確保（未作成なら作成）
-        if not request.session.session_key:
-            request.session.create()
-        session_key = request.session.session_key
+        # デバイスIDをクッキーから取得、なければ新規生成
+        device_id = request.COOKIES.get('device_id') or str(uuid.uuid4())
 
-        # 同じセッション＋同じ名前の未完了注文を探す
+        # 同じdevice_id＋同じ名前の未完了注文を探す
         existing_order = Order.objects.filter(
-            session_key=session_key,
+            device_id=device_id,
             customer_name=name,
             is_completed=False
         ).first()
@@ -125,7 +124,7 @@ def checkout(request):
         if existing_order:
             order = existing_order
         else:
-            order = Order.objects.create(total_price=0, customer_name=name, session_key=session_key)
+            order = Order.objects.create(total_price=0, customer_name=name, device_id=device_id)
 
         for product_id, quantity in cart.items():
             try:
@@ -149,7 +148,9 @@ def checkout(request):
 
         request.session['cart'] = {}
 
-        return render(request, 'store/order_success.html')
+        response = render(request, 'store/order_success.html')
+        response.set_cookie('device_id', device_id, max_age=60 * 60 * 24 * 365)
+        return response
     
     return redirect('cart_detail')
 
