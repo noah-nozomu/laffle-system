@@ -27,10 +27,19 @@
                                     </li>
                                     {% endfor %}
                                 </ul>
-                                <div class="text-end">
+                                <div class="d-flex flex-column gap-2">
                                     <a href="{% url 'complete_order' order.id %}" class="btn btn-outline-danger btn-lg w-100">
                                         ✅ 提供完了
                                     </a>
+                                    <a href="{% url 'edit_order' order.id %}" class="btn btn-outline-primary w-100">
+                                        ✏️ 編集
+                                    </a>
+                                    <form method="post" action="{% url 'delete_order' order.id %}" onsubmit="return confirm('この注文を削除しますか？');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-secondary w-100">
+                                            🗑️ 削除
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

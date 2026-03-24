@@ -173,3 +173,35 @@ def complete_order(request, order_id):
     order.is_completed = True
     order.save()
     return redirect('dashboard')
+
+# 10. 注文削除
+def delete_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        order.delete()
+    return redirect('dashboard')
+
+# 11. 注文編集（数量変更・商品削除）
+def edit_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.method == 'POST':
+        for item in order.items.all():
+            qty_key = f'quantity_{item.id}'
+            delete_key = f'delete_{item.id}'
+            if delete_key in request.POST:
+                item.delete()
+            else:
+                new_qty = int(request.POST.get(qty_key, item.quantity))
+                if new_qty > 0:
+                    item.quantity = new_qty
+                    item.save()
+                else:
+                    item.delete()
+        # 明細が全削除されたら注文ごと削除、そうでなければ合計を再計算
+        if order.items.exists():
+            order.total_price = sum(i.price * i.quantity for i in order.items.all())
+            order.save()
+        else:
+            order.delete()
+        return redirect('dashboard')
+    return render(request, 'store/edit_order.html', {'order': order})

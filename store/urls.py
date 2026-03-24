@@ -30,4 +30,8 @@ urlpatterns = [
     
     # 注文を「完了」にする機能
     path('dashboard/complete/<int:order_id>/', views.complete_order, name='complete_order'),
+
+    # 注文の削除・編集
+    path('dashboard/delete/<int:order_id>/', views.delete_order, name='delete_order'),
+    path('dashboard/edit/<int:order_id>/', views.edit_order, name='edit_order'),
 ]
