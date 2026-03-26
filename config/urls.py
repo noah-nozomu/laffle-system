@@ -8,6 +8,7 @@ from django.urls import re_path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
+    path('demo/', include('store.demo_urls')),
     # メディアファイル（写真）を強制的に表示する設定
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]

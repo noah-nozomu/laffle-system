@@ -130,6 +130,10 @@ def checkout(request):
         return redirect('category_list')
 
     if request.method == 'POST':
+        from django.conf import settings
+        if getattr(settings, 'DEMO_MODE', False):
+            request.session['cart'] = {}
+            return render(request, 'store/order_success_demo.html')
         name = request.POST.get('customer_name', 'お客様')
 
         # デバイスIDをクッキーから取得、なければ新規生成
@@ -274,3 +278,114 @@ def add_item_to_order(request, order_id):
         order.save()
 
     return redirect('edit_order', order_id=order_id)
+
+
+# ==========================================
+# デモ用ビュー（DBに保存しない）
+# ==========================================
+
+def demo_category_list(request):
+    return render(request, 'store/demo_category_list.html')
+
+
+def demo_product_list(request, category_name=None):
+    if category_name:
+        products = Product.objects.filter(category=category_name)
+    else:
+        products = Product.objects.all()
+    return render(request, 'store/demo_product_list.html', {
+        'products': products,
+        'category_name': category_name,
+    })
+
+
+def demo_add_to_cart(request, pk):
+    quantity = int(request.POST.get('quantity', 1))
+    temperature = request.POST.get('temperature', '')
+    cart = request.session.get('demo_cart', {})
+    product_id = str(pk)
+
+    if product_id in cart:
+        existing = cart[product_id]
+        if isinstance(existing, dict):
+            existing['quantity'] += quantity
+            if temperature:
+                existing['temperature'] = temperature
+        else:
+            cart[product_id] = {'quantity': existing + quantity, 'temperature': temperature}
+    else:
+        cart[product_id] = {'quantity': quantity, 'temperature': temperature}
+
+    request.session['demo_cart'] = cart
+    return redirect('demo_cart_detail')
+
+
+def demo_cart_detail(request):
+    cart = request.session.get('demo_cart', {})
+    cart_items = []
+    total_price = 0
+
+    for product_id, item_data in cart.items():
+        try:
+            product = Product.objects.get(id=product_id)
+            if isinstance(item_data, dict):
+                quantity = item_data.get('quantity', 1)
+                temperature = item_data.get('temperature', '')
+            else:
+                quantity = item_data
+                temperature = ''
+            subtotal = product.price * quantity
+            total_price += subtotal
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'temperature': temperature,
+                'subtotal': subtotal,
+            })
+        except Product.DoesNotExist:
+            continue
+
+    return render(request, 'store/demo_cart_detail.html', {
+        'cart_items': cart_items,
+        'total_price': total_price,
+    })
+
+
+def demo_update_cart(request, product_id):
+    if request.method == 'POST':
+        cart = request.session.get('demo_cart', {})
+        new_quantity = int(request.POST.get('quantity', 1))
+        temperature = request.POST.get('temperature', '')
+        str_id = str(product_id)
+        if str_id in cart:
+            if new_quantity > 0:
+                existing = cart[str_id]
+                if isinstance(existing, dict):
+                    existing['quantity'] = new_quantity
+                    if temperature:
+                        existing['temperature'] = temperature
+                else:
+                    cart[str_id] = {'quantity': new_quantity, 'temperature': temperature}
+            else:
+                del cart[str_id]
+        request.session['demo_cart'] = cart
+    return redirect('demo_cart_detail')
+
+
+def demo_remove_from_cart(request, product_id):
+    cart = request.session.get('demo_cart', {})
+    str_id = str(product_id)
+    if str_id in cart:
+        del cart[str_id]
+        request.session['demo_cart'] = cart
+    return redirect('demo_cart_detail')
+
+
+def checkout_demo(request):
+    cart = request.session.get('demo_cart', {})
+    if not cart:
+        return redirect('demo_category_list')
+    if request.method == 'POST':
+        request.session['demo_cart'] = {}
+        return render(request, 'store/order_success_demo.html')
+    return redirect('demo_cart_detail')

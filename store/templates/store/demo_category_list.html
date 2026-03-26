@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laffle オーダー（デモ）</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 { color: #d9534f; margin-top: 20px; font-size: 24px; }
+        p { color: #666; margin-bottom: 25px; font-size: 14px; }
+        .demo-banner {
+            background-color: #fff3cd; border: 1px solid #ffc107; color: #856404;
+            padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 13px;
+        }
+
+        /* ★2列に並べるグリッド設定 */
+        .category-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2列にする */
+            gap: 15px; /* カード同士の隙間 */
+            padding: 0 5px;
+        }
+
+        /* ★カードのデザイン（1枚目の画像風） */
+        .category-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+            color: #333;
+            text-decoration: none;
+            font-size: 18px; /* 文字を少し小さく */
+            font-weight: bold;
+            padding: 15px 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+            border-bottom: 5px solid #eee; /* 下に少しアクセント */
+        }
+        .category-btn:active { transform: scale(0.95); }
+        .btn-waffle { border-bottom-color: #ffcc00; }
+        .btn-drink { border-bottom-color: #8c52ff; }
+
+        /* ★画像のサイズ調整：正方形でカード内に収める */
+      /* 画像のサイズ調整：1枚目の画像（紅茶オレンジ）のような収まりにする */
+        .category-img {
+            width: 80%;           /* ★横幅を少し絞って、カードの中に余白を作る */
+            max-width: 180px;     /* ★大きくなりすぎないように制限 */
+            aspect-ratio: 1 / 1;  /* ★正方形を維持 */
+            object-fit: cover;
+            border-radius: 12px;
+            margin: 0 auto 10px;  /* ★左右中央に配置して、文字との間に余白を作る */
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Laffle</h1>
+    <div class="demo-banner">🎭 これはポートフォリオ用のデモです。注文は送信されません。</div>
+    <p>ご注文のカテゴリを選んでください</p>
+
+    <div class="category-container">
+
+        <a href="{% url 'demo_product_list' 'waffle' %}" class="category-btn btn-waffle">
+            <img src="https://res.cloudinary.com/dhsqyxa7k/image/upload/v1/media/products/%E3%82%AA%E3%83%AC%E3%83%B3%E3%82%B8%E7%B4%85%E8%8C%B6_hdsupb" alt="ワッフル" class="category-img">
+            ワッフル
+        </a>
+
+        <a href="{% url 'demo_product_list' 'drink' %}" class="category-btn btn-drink">
+            <img src="https://res.cloudinary.com/dhsqyxa7k/image/upload/v1/media/products/Gemini_Generated_Image_d49i8sd49i8sd49i_z8s81h" alt="ドリンク" class="category-img">
+            ドリンク
+        </a>
+
+    </div>
+</body>
+</html>

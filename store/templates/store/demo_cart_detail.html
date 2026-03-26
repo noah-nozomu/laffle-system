@@ -1,0 +1,98 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<style>
+    .custom-header {
+        position: sticky; top: 0; z-index: 1000; background: white; padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;
+        margin-bottom: 20px;
+        /* base.htmlの余白を相殺して画面の端まで広げる設定 */
+        margin-left: -15px; margin-right: -15px; margin-top: -15px;
+    }
+    .custom-back-btn {
+        position: absolute; left: 15px; text-decoration: none; color: #d9534f;
+        font-weight: bold; font-size: 14px; background: #ffe6e6; padding: 6px 12px; border-radius: 20px;
+    }
+    .custom-header h1 { color: #d9534f; margin: 0; font-size: 20px; font-weight: bold; }
+</style>
+
+<div class="custom-header">
+    <a href="javascript:history.back()" class="custom-back-btn">← 戻る</a>
+    <h1>🧇 Laffle</h1>
+</div>
+<div class="container mt-4">
+    <div class="alert alert-warning py-2" style="font-size:13px;">
+        🎭 これはポートフォリオ用のデモです。注文は送信されません。
+    </div>
+
+    <h2 class="mb-4">🛒 カートの中身</h2>
+
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>商品名</th>
+                    <th>価格</th>
+                    <th>個数</th>
+                    <th>小計</th>
+                    <th>削除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td class="align-middle">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px;">
+                        {% endif %}
+                        {{ item.product.name }}{% if item.temperature == 'hot' %}（ホット）{% elif item.temperature == 'ice' %}（アイス）{% endif %}
+                    </td>
+                    <td class="align-middle">¥{{ item.product.price }}</td>
+
+                    <td class="align-middle">
+                        <form action="{% url 'demo_update_cart' item.product.id %}" method="post" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="temperature" value="{{ item.temperature }}">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="form-control form-control-sm" style="width: 70px; margin-right: 5px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">更新</button>
+                        </form>
+                    </td>
+
+                    <td class="align-middle">¥{{ item.subtotal }}</td>
+
+                    <td class="align-middle text-center">
+                        <a href="{% url 'demo_remove_from_cart' item.product.id %}" class="btn btn-sm btn-danger" onclick="return confirm('本当に削除しますか？');">
+                            削除
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <h3>合計: ¥{{ total_price }}</h3>
+    </div>
+
+    <div class="card mt-4 p-4 shadow-sm">
+        <h4>📝 お客様情報</h4>
+        <form action="{% url 'demo_checkout' %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="customer_name" class="form-label">お名前（呼び出し用）</label>
+                <input type="text" name="customer_name" id="customer_name" class="form-control" placeholder="例：ラッフル太郎" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2 fs-5">注文を確定する（デモ）</button>
+        </form>
+    </div>
+
+    {% else %}
+        <div class="alert alert-info text-center">
+            カートは空です 🍃<br>
+            <a href="{% url 'demo_category_list' %}" class="btn btn-primary mt-3">メニューに戻る</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -146,3 +146,4 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+DEMO_MODE = False
