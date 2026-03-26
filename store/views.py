@@ -389,3 +389,7 @@ def checkout_demo(request):
         request.session['demo_cart'] = {}
         return render(request, 'store/order_success_demo.html')
     return redirect('demo_cart_detail')
+
+
+def demo_order_success(request):
+    return render(request, 'store/order_success_demo.html')
