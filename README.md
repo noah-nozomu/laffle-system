@@ -49,7 +49,7 @@
 
 ## 📸 スクリーンショット
 ![オーダートップ画面](https://github.com/user-attachments/assets/a5fdbd6e-d188-4819-a572-10656f7ad862)
-[商品選択画面](https://github.com/user-attachments/assets/b0519a3d-fab8-42d7-be7f-f0de63c9d9c6)
+![商品選択画面](https://github.com/user-attachments/assets/b0519a3d-fab8-42d7-be7f-f0de63c9d9c6)
  ![注文確認画面](https://github.com/user-attachments/assets/627693c0-b9b1-429f-a9cb-b9d2affc2a80)
 <img width="1916" height="967" alt="キッチン側画面" src="https://github.com/user-attachments/assets/8d9dfdec-fa46-4ec3-b1cf-f444fe5aad14" />
 <!-- スクリーンシ!
