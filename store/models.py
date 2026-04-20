@@ -10,6 +10,7 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=100, verbose_name="商品名")
+    display_order = models.PositiveIntegerField(default=0, db_index=True, verbose_name="表示順")
 
     # ★ここを追加：商品ごとにカテゴリを選べるようにします
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='waffle', verbose_name="カテゴリ")
@@ -27,6 +28,9 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name="説明")
     price = models.IntegerField(verbose_name="価格")
     image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name="商品画像")
+
+    class Meta:
+        ordering = ['display_order', 'id']
 
     def __str__(self):
         return self.name

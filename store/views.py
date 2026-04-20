@@ -18,9 +18,9 @@ def category_list(request):
 # ★変更：メニュー一覧（選ばれたカテゴリだけで絞り込む）
 def product_list(request, category_name=None):
     if category_name:
-        products = Product.objects.filter(category=category_name)
+        products = Product.objects.filter(category=category_name).order_by('display_order', 'id')
     else:
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('display_order', 'id')
         
     return render(request, 'store/product_list.html', {
         'products': products,
@@ -256,7 +256,7 @@ def edit_order(request, order_id):
         else:
             order.delete()
         return redirect('dashboard')
-    products = Product.objects.all()
+    products = Product.objects.all().order_by('display_order', 'id')
     return render(request, 'store/edit_order.html', {'order': order, 'products': products})
 
 # 12. 編集画面から商品を追加
@@ -290,9 +290,9 @@ def demo_category_list(request):
 
 def demo_product_list(request, category_name=None):
     if category_name:
-        products = Product.objects.filter(category=category_name)
+        products = Product.objects.filter(category=category_name).order_by('display_order', 'id')
     else:
-        products = Product.objects.all()
+        products = Product.objects.all().order_by('display_order', 'id')
     return render(request, 'store/demo_product_list.html', {
         'products': products,
         'category_name': category_name,
