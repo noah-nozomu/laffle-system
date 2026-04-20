@@ -2,6 +2,11 @@
 
 {% block content %}
 <div class="container-fluid mt-4">
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="{% url 'dashboard' %}" class="btn btn-danger">🍳 注文受付中</a>
+        <a href="{% url 'payment_waiting_orders' %}" class="btn btn-outline-warning">💳 会計待ち</a>
+        <a href="{% url 'order_history' %}" class="btn btn-outline-secondary">📜 注文履歴</a>
+    </div>
     <div class="row">
         
         <div class="col-md-8">
@@ -57,44 +62,6 @@
                 </div>
             {% endif %}
 
-            <div class="mt-5">
-                <h3 class="mb-3 text-secondary fw-bold">✅ 完了済み注文（本日・最新30件）</h3>
-                {% if completed_orders %}
-                    <div class="row">
-                        {% for order in completed_orders %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card shadow-sm border-secondary h-100">
-                                <div class="card-header bg-light">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">{{ order.customer_name }} 様</span>
-                                        <span class="badge bg-secondary">{{ order.completed_at|date:"m/d H:i" }}</span>
-                                    </div>
-                                </div>
-                                <div class="card-body py-2">
-                                    <ul class="list-group list-group-flush mb-2">
-                                        {% for item in order.items.all %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center py-2">
-                                            <span>
-                                                {{ item.product.name }}{% if item.temperature == 'hot' %}<span class="ms-1 badge bg-danger">ホット</span>{% elif item.temperature == 'ice' %}<span class="ms-1 badge bg-primary">アイス</span>{% endif %}
-                                            </span>
-                                            <span class="badge bg-secondary rounded-pill">x {{ item.quantity }}</span>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                    <div class="text-end fw-bold text-secondary">
-                                        合計: ¥{{ order.total_price|floatformat:"0" }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="alert alert-light text-center">
-                        完了済み注文はまだありません
-                    </div>
-                {% endif %}
-            </div>
         </div>
 
         <div class="col-md-4">

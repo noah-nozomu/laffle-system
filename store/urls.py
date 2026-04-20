@@ -27,9 +27,12 @@ urlpatterns = [
     
     # ダッシュボード（売上・キッチンモニター）
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/payment-waiting/', views.payment_waiting_orders, name='payment_waiting_orders'),
+    path('dashboard/history/', views.order_history, name='order_history'),
     
     # 注文を「完了」にする機能
     path('dashboard/complete/<int:order_id>/', views.complete_order, name='complete_order'),
+    path('dashboard/payment-complete/<int:order_id>/', views.complete_payment, name='complete_payment'),
 
     # 注文の削除・編集
     path('dashboard/delete/<int:order_id>/', views.delete_order, name='delete_order'),

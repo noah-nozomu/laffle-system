@@ -44,6 +44,7 @@ class Order(models.Model):
     total_price = models.IntegerField(default=0, verbose_name="合計金額")
     is_completed = models.BooleanField(default=False, verbose_name="提供済み")
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name="提供完了日時")
+    paid_at = models.DateTimeField(null=True, blank=True, verbose_name="会計完了日時")
 
     def __str__(self):
         # 管理画面などで見やすいように名前を表示します

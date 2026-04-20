@@ -139,12 +139,30 @@ def checkout(request):
         # デバイスIDをクッキーから取得、なければ新規生成
         device_id = request.COOKIES.get('device_id') or str(uuid.uuid4())
 
-        # 同じdevice_id＋同じ名前の未完了注文を探す
-        existing_order = Order.objects.filter(
-            device_id=device_id,
-            customer_name=name,
-            is_completed=False
-        ).first()
+        today = timezone.localdate()
+        # 同じdevice_id＋同じ名前の未完了注文を優先して追記。
+        # 見つからなければ、同日の会計待ち注文に追記して1つにまとめる。
+        existing_order = (
+            Order.objects.filter(
+                device_id=device_id,
+                customer_name=name,
+                is_completed=False,
+            )
+            .order_by('created_at')
+            .first()
+        )
+        if not existing_order:
+            existing_order = (
+                Order.objects.filter(
+                    device_id=device_id,
+                    customer_name=name,
+                    is_completed=True,
+                    paid_at__isnull=True,
+                    created_at__date=today,
+                )
+                .order_by('created_at')
+                .first()
+            )
 
         if existing_order:
             order = existing_order
@@ -210,10 +228,15 @@ def dashboard(request):
         .prefetch_related('items__product')
         .order_by('created_at')
     )
-    completed_orders = (
-        Order.objects.filter(is_completed=True, completed_at__date=today)
+    waiting_payment_orders = (
+        Order.objects.filter(is_completed=True, paid_at__isnull=True, created_at__date=today)
         .prefetch_related('items__product')
         .order_by('-completed_at', '-created_at')[:30]
+    )
+    completed_orders = (
+        Order.objects.filter(paid_at__date=today)
+        .prefetch_related('items__product')
+        .order_by('-paid_at', '-created_at')[:30]
     )
     total_sales = completed_orders.aggregate(Sum('total_price'))['total_price__sum'] or 0
     item_stats = OrderItem.objects.filter(order__created_at__date=today)\
@@ -223,6 +246,7 @@ def dashboard(request):
 
     return render(request, 'store/dashboard.html', {
         'active_orders': active_orders,
+        'waiting_payment_orders': waiting_payment_orders,
         'completed_orders': completed_orders,
         'total_sales': total_sales,
         'item_stats': item_stats,
@@ -235,6 +259,39 @@ def complete_order(request, order_id):
     order.completed_at = timezone.now()
     order.save()
     return redirect('dashboard')
+
+
+def payment_waiting_orders(request):
+    today = timezone.localdate()
+    waiting_payment_orders = (
+        Order.objects.filter(is_completed=True, paid_at__isnull=True, created_at__date=today)
+        .prefetch_related('items__product')
+        .order_by('-completed_at', '-created_at')
+    )
+    return render(request, 'store/payment_waiting.html', {
+        'waiting_payment_orders': waiting_payment_orders,
+    })
+
+
+def complete_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.is_completed and order.paid_at is None:
+        order.paid_at = timezone.now()
+        order.save(update_fields=['paid_at'])
+    return redirect('payment_waiting_orders')
+
+
+def order_history(request):
+    today = timezone.localdate()
+    paid_orders = (
+        Order.objects.filter(paid_at__date=today)
+        .prefetch_related('items__product')
+        .order_by('-paid_at', '-created_at')
+    )
+    return render(request, 'store/order_history.html', {
+        'paid_orders': paid_orders,
+        'total_sales': paid_orders.aggregate(Sum('total_price'))['total_price__sum'] or 0,
+    })
 
 # 10. 注文削除
 def delete_order(request, order_id):
