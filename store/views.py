@@ -4,6 +4,7 @@ import base64
 from io import BytesIO
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.db import transaction
 from django.db.models import Sum
 from .models import Product, Order, OrderItem
 
@@ -139,9 +140,8 @@ def checkout(request):
         # デバイスIDをクッキーから取得、なければ新規生成
         device_id = request.COOKIES.get('device_id') or str(uuid.uuid4())
 
-        today = timezone.localdate()
         # 同じdevice_id＋同じ名前の未完了注文を優先して追記。
-        # 見つからなければ、同日の会計待ち注文に追記して1つにまとめる。
+        # 会計待ち注文にはここでは追加せず、必ずキッチン側で提供完了を経由する。
         existing_order = (
             Order.objects.filter(
                 device_id=device_id,
@@ -151,18 +151,6 @@ def checkout(request):
             .order_by('created_at')
             .first()
         )
-        if not existing_order:
-            existing_order = (
-                Order.objects.filter(
-                    device_id=device_id,
-                    customer_name=name,
-                    is_completed=True,
-                    paid_at__isnull=True,
-                    created_at__date=today,
-                )
-                .order_by('created_at')
-                .first()
-            )
 
         if existing_order:
             order = existing_order
@@ -254,10 +242,45 @@ def dashboard(request):
 
 # 9. 注文完了処理（提供済みボタン用）
 def complete_order(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    order.is_completed = True
-    order.completed_at = timezone.now()
-    order.save()
+    order = get_object_or_404(Order, id=order_id, is_completed=False)
+    now = timezone.now()
+    today = timezone.localdate()
+
+    waiting_order = (
+        Order.objects.filter(
+            device_id=order.device_id,
+            customer_name=order.customer_name,
+            is_completed=True,
+            paid_at__isnull=True,
+            created_at__date=today,
+        )
+        .exclude(id=order.id)
+        .order_by('created_at')
+        .first()
+    )
+
+    if not waiting_order:
+        order.is_completed = True
+        order.completed_at = now
+        order.save(update_fields=['is_completed', 'completed_at'])
+        return redirect('dashboard')
+
+    with transaction.atomic():
+        waiting_order.completed_at = now
+        waiting_order.save(update_fields=['completed_at'])
+        for item in order.items.all():
+            merged_item = waiting_order.items.filter(product=item.product).first()
+            if merged_item:
+                merged_item.quantity += item.quantity
+                merged_item.save(update_fields=['quantity'])
+            else:
+                item.pk = None
+                item.order = waiting_order
+                item.save()
+        waiting_order.total_price = sum(i.price * i.quantity for i in waiting_order.items.all())
+        waiting_order.save(update_fields=['total_price'])
+        order.delete()
+
     return redirect('dashboard')
 
 
