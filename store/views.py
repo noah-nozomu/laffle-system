@@ -204,7 +204,16 @@ def generate_qr(request):
 
 # 8. ダッシュボード（売上とキッチンモニター）
 def dashboard(request):
-    active_orders = Order.objects.filter(is_completed=False).order_by('created_at')
+    active_orders = (
+        Order.objects.filter(is_completed=False)
+        .prefetch_related('items__product')
+        .order_by('created_at')
+    )
+    completed_orders = (
+        Order.objects.filter(is_completed=True)
+        .prefetch_related('items__product')
+        .order_by('-created_at')[:30]
+    )
     today = timezone.now().date()
     todays_orders = Order.objects.filter(created_at__date=today)
     total_sales = todays_orders.aggregate(Sum('total_price'))['total_price__sum'] or 0
@@ -215,6 +224,7 @@ def dashboard(request):
 
     return render(request, 'store/dashboard.html', {
         'active_orders': active_orders,
+        'completed_orders': completed_orders,
         'total_sales': total_sales,
         'item_stats': item_stats,
     })
