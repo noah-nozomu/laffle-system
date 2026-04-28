@@ -1,3 +1,6 @@
+import logging
+
+import cloudinary.uploader
 from django.contrib import admin
 from django.contrib import messages
 from django.db import transaction
@@ -5,6 +8,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from .models import Product, Order, OrderItem
+
+logger = logging.getLogger(__name__)
 
 # 注文の中身（商品と個数）を、注文詳細ページの中に表示するための設定
 class OrderItemInline(admin.TabularInline):
@@ -134,6 +139,59 @@ class ProductAdmin(admin.ModelAdmin):
             self.message_user(request, '選択した商品の表示順を最下部へ移動しました。')
         else:
             self.message_user(request, 'これ以上最下部へ移動できません。', level=messages.WARNING)
+
+    def _destroy_cloudinary_product_image(self, public_id, request=None):
+        if not public_id:
+            return
+        try:
+            result = cloudinary.uploader.destroy(
+                public_id,
+                invalidate=True,
+                resource_type='image',
+            )
+            r = result.get('result')
+            if r not in ('ok', 'not found'):
+                logger.warning('Cloudinary uploader.destroy unexpected result: %s', result)
+        except Exception:
+            logger.exception('Failed to delete Cloudinary image public_id=%s', public_id)
+            if request is not None:
+                self.message_user(
+                    request,
+                    '商品画像のCloudinary上の削除に失敗しました。ストレージを確認してください。',
+                    level=messages.WARNING,
+                )
+
+    def save_model(self, request, obj, form, change):
+        old_image_public_id = None
+        if change and obj.pk:
+            previous = Product.objects.filter(pk=obj.pk).only('image').first()
+            if previous and previous.image and previous.image.name:
+                old_image_public_id = previous.image.name
+
+        super().save_model(request, obj, form, change)
+
+        if not old_image_public_id:
+            return
+
+        new_public_id = obj.image.name if obj.image and obj.image.name else None
+        if new_public_id == old_image_public_id:
+            return
+
+        self._destroy_cloudinary_product_image(old_image_public_id, request)
+
+    def delete_model(self, request, obj):
+        public_id = obj.image.name if obj.image and obj.image.name else None
+        super().delete_model(request, obj)
+        self._destroy_cloudinary_product_image(public_id, request)
+
+    def delete_queryset(self, request, queryset):
+        public_ids = []
+        for product in queryset.only('image'):
+            if product.image and product.image.name:
+                public_ids.append(product.image.name)
+        super().delete_queryset(request, queryset)
+        for pid in public_ids:
+            self._destroy_cloudinary_product_image(pid, request)
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Order, OrderAdmin)
